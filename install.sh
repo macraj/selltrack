@@ -18,7 +18,7 @@ apt-get install -y -qq python3 python3-venv python3-pip git
 # --- App user ---
 if ! id "$APP_USER" &>/dev/null; then
     echo "==> Tworzenie uzytkownika $APP_USER..."
-    useradd -r -m -d "$APP_DIR" -s /usr/sbin/nologin "$APP_USER"
+    useradd -r -d "$APP_DIR" -s /usr/sbin/nologin "$APP_USER"
 fi
 
 # --- Clone or pull ---
