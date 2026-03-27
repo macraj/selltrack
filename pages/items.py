@@ -441,8 +441,17 @@ def item_detail(item_id: int):
         if item.images:
             with ui.row().classes('gap-3 flex-wrap'):
                 for img in item.images:
-                    ui.image(f'/uploads/{img.filename}') \
-                        .classes('rounded shadow').style('height: 240px; width: 320px; object-fit: cover')
+                    src = f'/uploads/{img.filename}'
+                    ui.image(src) \
+                        .classes('rounded shadow cursor-pointer') \
+                        .style('height: 240px; width: 320px; object-fit: cover') \
+                        .on('click', lambda _, s=src: open_lightbox(s))
+
+            def open_lightbox(src):
+                with ui.dialog() as dlg, ui.card().classes('p-0').style('max-width: 90vw; max-height: 90vh'):
+                    ui.image(src).style('max-width: 90vw; max-height: 85vh; object-fit: contain')
+                    dlg.on('close', dlg.delete)
+                dlg.open()
 
         ui.separator()
 
