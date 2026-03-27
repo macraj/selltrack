@@ -39,7 +39,7 @@ def api_export_item(item_id: int):
 def item_list():
     create_header()
 
-    state = {'search': '', 'category_id': None, 'status': None, 'sort': 'date_desc', 'page': 1}
+    state = {'search': '', 'category_id': None, 'status': 'w_magazynie', 'sort': 'date_desc', 'page': 1}
     PER_PAGE = 12
 
     with get_db() as db:
@@ -54,11 +54,11 @@ def item_list():
         with ui.row().classes('w-full items-end gap-2 flex-wrap py-4'):
             search_in = ui.input('Szukaj', value='').props('clearable dense').classes('w-48')
             cat_sel = ui.select(cat_options, value=0, label='Kategoria').props('dense').classes('w-40')
-            status_sel = ui.select(filter_status_options, value=0, label='Status').props('dense').classes('w-44')
+            status_sel = ui.select(filter_status_options, value='w_magazynie', label='Status').props('dense').classes('w-44')
             sort_sel = ui.select(
                 {'date_desc': 'Najnowsze', 'date_asc': 'Najstarsze',
-                 'price_asc': 'Cena rosnaco', 'price_desc': 'Cena malejaco',
-                 'title_asc': 'Tytul A-Z', 'activation_desc': 'Aktywacja'},
+                 'price_asc': 'Cena rosnąco', 'price_desc': 'Cena malejąco',
+                 'title_asc': 'Tytuł A-Z', 'activation_desc': 'Aktywacja'},
                 value='date_desc', label='Sortuj',
             ).props('dense').classes('w-40')
             ui.button(icon='search', on_click=lambda: apply_filters()).props('dense color=primary')
@@ -101,7 +101,7 @@ def item_list():
             if not items:
                 with ui.column().classes('w-full items-center py-12'):
                     ui.icon('inventory_2', size='64px').classes('text-grey-4')
-                    ui.label('Brak przedmiotow do wyswietlenia').classes('text-lg text-grey-5')
+                    ui.label('Brak przedmiotów do wyświetlenia').classes('text-lg text-grey-5')
                 return
 
             with ui.element('div').classes(
@@ -122,7 +122,7 @@ def item_list():
                         with ui.card_section():
                             ui.label(item.title).classes('text-subtitle1 font-bold')
                             with ui.row().classes('items-center gap-2 no-wrap'):
-                                ui.label(f'{float(item.price):.2f} zl').classes('text-bold text-primary')
+                                ui.label(f'{float(item.price):.2f} zł').classes('text-bold text-primary')
                                 ui.space()
                                 cs = item.calculated_status
                                 ui.badge(STATUS_LABELS.get(cs, cs),
@@ -146,9 +146,9 @@ def item_list():
         def clear_filters():
             search_in.value = ''
             cat_sel.value = 0
-            status_sel.value = 0
+            status_sel.value = 'w_magazynie'
             sort_sel.value = 'date_desc'
-            state.update({'search': '', 'category_id': None, 'status': None, 'sort': 'date_desc', 'page': 1})
+            state.update({'search': '', 'category_id': None, 'status': 'w_magazynie', 'sort': 'date_desc', 'page': 1})
             items_grid.refresh()
 
         def _set_page(p):
@@ -193,7 +193,7 @@ def item_detail(item_id: int):
         # Details grid
         with ui.grid(columns=2).classes('gap-x-8 gap-y-2'):
             ui.label('Cena:').classes('font-bold')
-            ui.label(f'{float(item.price):.2f} zl')
+            ui.label(f'{float(item.price):.2f} zł')
 
             ui.label('Kategoria:').classes('font-bold')
             ui.label(item.category_rel.display_name if item.category_rel else '-')
@@ -213,7 +213,7 @@ def item_detail(item_id: int):
                 ui.label(exp_str)
 
             if item.removal_date:
-                ui.label('Data zdjecia:').classes('font-bold')
+                ui.label('Data zdjęcia:').classes('font-bold')
                 ui.label(str(item.removal_date))
 
             if item.auction_link:
@@ -229,16 +229,16 @@ def item_detail(item_id: int):
         with ui.row().classes('gap-2'):
             ui.button('Edytuj', icon='edit',
                       on_click=lambda: ui.navigate.to(f'/items/{item_id}/edit'))
-            ui.button('Eksportuj zdjecia', icon='download',
+            ui.button('Eksportuj zdjęcia', icon='download',
                       on_click=lambda: ui.run_javascript(f'window.location.href="/api/export/{item_id}"')) \
                 .props('outline')
 
             def confirm_delete():
                 with ui.dialog() as dlg, ui.card():
-                    ui.label('Czy na pewno chcesz usunac ten przedmiot?').classes('text-lg')
+                    ui.label('Czy na pewno chcesz usunąć ten przedmiot?').classes('text-lg')
                     with ui.row().classes('w-full justify-end gap-2 q-mt-md'):
                         ui.button('Anuluj', on_click=dlg.close).props('flat')
-                        ui.button('Usun', on_click=lambda: do_delete(dlg), icon='delete') \
+                        ui.button('Usuń', on_click=lambda: do_delete(dlg), icon='delete') \
                             .props('color=red')
                 dlg.open()
 
@@ -251,10 +251,10 @@ def item_detail(item_id: int):
                         db.delete(it)
                         db.commit()
                 dlg.close()
-                ui.notify('Przedmiot usuniety', type='positive')
+                ui.notify('Przedmiot usunięty', type='positive')
                 ui.navigate.to('/')
 
-            ui.button('Usun', icon='delete', on_click=confirm_delete).props('color=red outline')
+            ui.button('Usuń', icon='delete', on_click=confirm_delete).props('color=red outline')
 
 
 # --- Add item ---
@@ -272,11 +272,11 @@ def item_add():
     with ui.column().classes('w-full max-w-3xl mx-auto px-4 py-6'):
         ui.label('Dodaj przedmiot').classes('text-h5 font-bold q-mb-md')
 
-        title_in = ui.input('Tytul', validation={'Wymagane': lambda v: bool(v and v.strip())}) \
+        title_in = ui.input('Tytuł', validation={'Wymagane': lambda v: bool(v and v.strip())}) \
             .classes('w-full')
         desc_in = ui.textarea('Opis', validation={'Wymagane': lambda v: bool(v and v.strip())}) \
             .classes('w-full')
-        price_in = ui.number('Cena (zl)', value=0, min=0, format='%.2f',
+        price_in = ui.number('Cena (zł)', value=0, min=0, format='%.2f',
                              validation={'Wymagane': lambda v: v is not None and v > 0}) \
             .classes('w-full')
         link_in = ui.input('Link do aukcji (opcjonalnie)').classes('w-full')
@@ -288,9 +288,9 @@ def item_add():
 
         with ui.row().classes('w-full gap-4'):
             activation_in = create_date_input('Data aktywacji')
-            exp_in = ui.number('Waznosc (dni)', value=DEFAULT_EXPIRATION_DAYS, min=1).classes('flex-1')
+            exp_in = ui.number('Ważność (dni)', value=DEFAULT_EXPIRATION_DAYS, min=1).classes('flex-1')
 
-        ui.label('Zdjecia').classes('text-subtitle1 font-bold q-mt-md')
+        ui.label('Zdjęcia').classes('text-subtitle1 font-bold q-mt-md')
 
         @ui.refreshable
         def image_previews():
@@ -307,25 +307,25 @@ def item_add():
             image_previews.refresh()
 
         ui.upload(on_upload=handle_upload, multiple=True, auto_upload=True,
-                  label='Przeciagnij zdjecia lub kliknij') \
+                  label='Przeciągnij zdjęcia lub kliknij') \
             .props('accept="image/*"').classes('w-full')
         image_previews()
 
         def save():
             if not title_in.value or not title_in.value.strip():
-                ui.notify('Tytul jest wymagany', type='negative')
+                ui.notify('Tytuł jest wymagany', type='negative')
                 return
             if not desc_in.value or not desc_in.value.strip():
                 ui.notify('Opis jest wymagany', type='negative')
                 return
             if not price_in.value or price_in.value <= 0:
-                ui.notify('Podaj cene', type='negative')
+                ui.notify('Podaj cenę', type='negative')
                 return
             if not cat_sel.value:
-                ui.notify('Wybierz kategorie', type='negative')
+                ui.notify('Wybierz kategorię', type='negative')
                 return
             if not uploaded_filenames:
-                ui.notify('Dodaj przynajmniej jedno zdjecie', type='negative')
+                ui.notify('Dodaj przynajmniej jedno zdjęcie', type='negative')
                 return
 
             act_date = None
@@ -385,9 +385,9 @@ def item_edit(item_id: int):
     with ui.column().classes('w-full max-w-3xl mx-auto px-4 py-6'):
         ui.label(f'Edytuj: {item.title}').classes('text-h5 font-bold q-mb-md')
 
-        title_in = ui.input('Tytul', value=item.title).classes('w-full')
+        title_in = ui.input('Tytuł', value=item.title).classes('w-full')
         desc_in = ui.textarea('Opis', value=item.description).classes('w-full')
-        price_in = ui.number('Cena (zl)', value=float(item.price), min=0, format='%.2f').classes('w-full')
+        price_in = ui.number('Cena (zł)', value=float(item.price), min=0, format='%.2f').classes('w-full')
         link_in = ui.input('Link do aukcji', value=item.auction_link or '').classes('w-full')
 
         with ui.row().classes('w-full gap-4'):
@@ -397,19 +397,19 @@ def item_edit(item_id: int):
         with ui.row().classes('w-full gap-4'):
             act_val = str(item.activation_date) if item.activation_date else ''
             activation_in = create_date_input('Data aktywacji', value=act_val)
-            exp_in = ui.number('Waznosc (dni)', value=item.expiration_days, min=1).classes('flex-1')
+            exp_in = ui.number('Ważność (dni)', value=item.expiration_days, min=1).classes('flex-1')
 
         with ui.row().classes('w-full gap-4'):
             rem_val = str(item.removal_date) if item.removal_date else ''
-            removal_in = create_date_input('Data zdjecia ogloszenia', value=rem_val)
+            removal_in = create_date_input('Data zdjęcia ogłoszenia', value=rem_val)
 
         # Existing images
-        ui.label('Aktualne zdjecia').classes('text-subtitle1 font-bold q-mt-md')
+        ui.label('Aktualne zdjęcia').classes('text-subtitle1 font-bold q-mt-md')
 
         @ui.refreshable
         def show_existing():
             if not existing_images:
-                ui.label('Brak zdjec').classes('text-grey-5')
+                ui.label('Brak zdjęć').classes('text-grey-5')
                 return
             with ui.row().classes('gap-2 flex-wrap'):
                 for img_data in list(existing_images):
@@ -431,12 +431,12 @@ def item_edit(item_id: int):
             if img_data['id'] in existing_image_ids:
                 existing_image_ids.remove(img_data['id'])
             show_existing.refresh()
-            ui.notify('Zdjecie usuniete', type='info')
+            ui.notify('Zdjęcie usunięte', type='info')
 
         show_existing()
 
         # New images
-        ui.label('Dodaj nowe zdjecia').classes('text-subtitle1 font-bold q-mt-md')
+        ui.label('Dodaj nowe zdjęcia').classes('text-subtitle1 font-bold q-mt-md')
 
         @ui.refreshable
         def new_previews():
@@ -453,19 +453,19 @@ def item_edit(item_id: int):
             new_previews.refresh()
 
         ui.upload(on_upload=handle_upload, multiple=True, auto_upload=True,
-                  label='Przeciagnij lub kliknij') \
+                  label='Przeciągnij lub kliknij') \
             .props('accept="image/*"').classes('w-full')
         new_previews()
 
         def save():
             if not title_in.value or not title_in.value.strip():
-                ui.notify('Tytul jest wymagany', type='negative')
+                ui.notify('Tytuł jest wymagany', type='negative')
                 return
             if not desc_in.value or not desc_in.value.strip():
                 ui.notify('Opis jest wymagany', type='negative')
                 return
             if not existing_images and not new_filenames:
-                ui.notify('Przedmiot musi miec przynajmniej jedno zdjecie', type='negative')
+                ui.notify('Przedmiot musi mieć przynajmniej jedno zdjęcie', type='negative')
                 return
 
             act_date = None
@@ -481,7 +481,7 @@ def item_edit(item_id: int):
                 try:
                     rem_date = date.fromisoformat(removal_in.value)
                 except ValueError:
-                    ui.notify('Niepoprawny format daty zdjecia', type='negative')
+                    ui.notify('Niepoprawny format daty zdjęcia', type='negative')
                     return
 
             with get_db() as db:

@@ -5,7 +5,7 @@ STATUS_LABELS = {
     'w_magazynie': 'W magazynie',
     'aktywny': 'Aktywny',
     'sprzedany': 'Sprzedany',
-    'zdjety': 'Zdjety z ogloszenia',
+    'zdjety': 'Zdjęty z ogłoszenia',
     'do_likwidacji': 'Do likwidacji',
 }
 
@@ -21,7 +21,7 @@ STATUS_OPTIONS = {
     'w_magazynie': 'W magazynie',
     'aktywny': 'Aktywny',
     'sprzedany': 'Sprzedany',
-    'zdjety': 'Zdjety z ogloszenia',
+    'zdjety': 'Zdjęty z ogłoszenia',
 }
 
 

@@ -13,7 +13,7 @@ def category_list():
         with ui.row().classes('w-full items-center'):
             ui.label('Kategorie').classes('text-h5 font-bold')
             ui.space()
-            ui.button('Dodaj kategorie', icon='add',
+            ui.button('Dodaj kategorię', icon='add',
                       on_click=lambda: ui.navigate.to('/categories/add'))
 
         @ui.refreshable
@@ -27,7 +27,7 @@ def category_list():
 
             columns = [
                 {'name': 'name', 'label': 'Nazwa systemowa', 'field': 'name', 'align': 'left'},
-                {'name': 'display', 'label': 'Nazwa wyswietlana', 'field': 'display', 'align': 'left'},
+                {'name': 'display', 'label': 'Nazwa wyświetlana', 'field': 'display', 'align': 'left'},
                 {'name': 'count', 'label': 'Przedmioty', 'field': 'count', 'align': 'center'},
                 {'name': 'actions', 'label': '', 'field': 'actions', 'align': 'right'},
             ]
@@ -53,15 +53,15 @@ def category_list():
 
         def confirm_delete(cat_id, name, count):
             if count > 0:
-                ui.notify(f'Nie mozna usunac kategorii "{name}" - jest uzywana przez {count} przedmiotow',
+                ui.notify(f'Nie można usunąć kategorii "{name}" - jest używana przez {count} przedmiotów',
                           type='negative')
                 return
 
             with ui.dialog() as dlg, ui.card():
-                ui.label(f'Usunac kategorie "{name}"?').classes('text-lg')
+                ui.label(f'Usunąć kategorię "{name}"?').classes('text-lg')
                 with ui.row().classes('w-full justify-end gap-2 q-mt-md'):
                     ui.button('Anuluj', on_click=dlg.close).props('flat')
-                    ui.button('Usun', on_click=lambda: do_delete(cat_id, dlg), icon='delete') \
+                    ui.button('Usuń', on_click=lambda: do_delete(cat_id, dlg), icon='delete') \
                         .props('color=red')
             dlg.open()
 
@@ -72,7 +72,7 @@ def category_list():
                     db.delete(cat)
                     db.commit()
             dlg.close()
-            ui.notify('Kategoria usunieta', type='positive')
+            ui.notify('Kategoria usunięta', type='positive')
             cat_table.refresh()
 
         cat_table()
@@ -83,11 +83,11 @@ def category_add():
     create_header()
 
     with ui.column().classes('w-full max-w-xl mx-auto px-4 py-6'):
-        ui.label('Dodaj kategorie').classes('text-h5 font-bold q-mb-md')
+        ui.label('Dodaj kategorię').classes('text-h5 font-bold q-mb-md')
 
         name_in = ui.input('Nazwa systemowa',
                            validation={'Wymagane': lambda v: bool(v and v.strip())}).classes('w-full')
-        display_in = ui.input('Nazwa wyswietlana',
+        display_in = ui.input('Nazwa wyświetlana',
                               validation={'Wymagane': lambda v: bool(v and v.strip())}).classes('w-full')
 
         def save():
@@ -95,13 +95,13 @@ def category_add():
                 ui.notify('Nazwa systemowa jest wymagana', type='negative')
                 return
             if not display_in.value or not display_in.value.strip():
-                ui.notify('Nazwa wyswietlana jest wymagana', type='negative')
+                ui.notify('Nazwa wyświetlana jest wymagana', type='negative')
                 return
 
             with get_db() as db:
                 existing = db.query(Category).filter_by(name=name_in.value.strip()).first()
                 if existing:
-                    ui.notify('Kategoria o tej nazwie systemowej juz istnieje', type='negative')
+                    ui.notify('Kategoria o tej nazwie systemowej już istnieje', type='negative')
                     return
                 db.add(Category(name=name_in.value.strip(), display_name=display_in.value.strip()))
                 db.commit()
@@ -129,14 +129,14 @@ def category_edit(cat_id: int):
         ui.label(f'Edytuj: {cat.display_name}').classes('text-h5 font-bold q-mb-md')
 
         name_in = ui.input('Nazwa systemowa', value=cat.name).classes('w-full')
-        display_in = ui.input('Nazwa wyswietlana', value=cat.display_name).classes('w-full')
+        display_in = ui.input('Nazwa wyświetlana', value=cat.display_name).classes('w-full')
 
         def save():
             if not name_in.value or not name_in.value.strip():
                 ui.notify('Nazwa systemowa jest wymagana', type='negative')
                 return
             if not display_in.value or not display_in.value.strip():
-                ui.notify('Nazwa wyswietlana jest wymagana', type='negative')
+                ui.notify('Nazwa wyświetlana jest wymagana', type='negative')
                 return
 
             with get_db() as db:
@@ -144,7 +144,7 @@ def category_edit(cat_id: int):
                     Category.name == name_in.value.strip(), Category.id != cat_id,
                 ).first()
                 if existing:
-                    ui.notify('Kategoria o tej nazwie systemowej juz istnieje', type='negative')
+                    ui.notify('Kategoria o tej nazwie systemowej już istnieje', type='negative')
                     return
                 c = db.query(Category).get(cat_id)
                 c.name = name_in.value.strip()

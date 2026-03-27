@@ -21,8 +21,8 @@ def seed_categories():
     defaults = [
         ('elektronika', 'Elektronika'),
         ('meble', 'Meble'),
-        ('odziez', 'Odziez'),
-        ('ksiazki', 'Ksiazki'),
+        ('odziez', 'Odzież'),
+        ('ksiazki', 'Książki'),
         ('inne', 'Inne'),
     ]
     with get_db() as db:

@@ -64,4 +64,4 @@ Installs to `/opt/selltrack/`, runs as systemd service under dedicated `selltrac
 
 ## UI Language
 
-All user-facing text is in **Polish** (without diacritics in code strings for ASCII safety).
+All user-facing text is in **Polish** with proper diacritics (ą, ć, ę, ł, ń, ó, ś, ź, ż). Internal/system identifiers (status keys, category `name`) remain ASCII.
