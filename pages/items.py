@@ -158,105 +158,6 @@ def item_list():
         items_grid()
 
 
-# --- Item detail ---
-
-@ui.page('/items/{item_id}')
-def item_detail(item_id: int):
-    create_header()
-
-    with get_db() as db:
-        item = db.query(Item).options(
-            selectinload(Item.images), selectinload(Item.category_rel),
-        ).get(item_id)
-
-    if not item:
-        ui.label('Przedmiot nie znaleziony').classes('text-xl text-red q-pa-lg')
-        return
-
-    with ui.column().classes('w-full max-w-5xl mx-auto px-4 py-6 gap-4'):
-        # Title row
-        with ui.row().classes('w-full items-center'):
-            ui.label(item.title).classes('text-h4 font-bold')
-            ui.space()
-            cs = item.calculated_status
-            ui.badge(STATUS_LABELS.get(cs, cs), color=STATUS_COLORS.get(cs, 'grey')).props('size=lg')
-
-        # Images
-        if item.images:
-            with ui.row().classes('gap-3 flex-wrap'):
-                for img in item.images:
-                    ui.image(f'/uploads/{img.filename}') \
-                        .classes('rounded shadow').style('height: 240px; object-fit: cover')
-
-        ui.separator()
-
-        # Details grid
-        with ui.grid(columns=2).classes('gap-x-8 gap-y-2'):
-            ui.label('Cena:').classes('font-bold')
-            ui.label(f'{float(item.price):.2f} zł')
-
-            ui.label('Kategoria:').classes('font-bold')
-            ui.label(item.category_rel.display_name if item.category_rel else '-')
-
-            ui.label('Dodano:').classes('font-bold')
-            ui.label(item.date_added.strftime('%Y-%m-%d') if item.date_added else '-')
-
-            if item.activation_date:
-                ui.label('Data aktywacji:').classes('font-bold')
-                ui.label(str(item.activation_date))
-
-                ui.label('Wygasa:').classes('font-bold')
-                days = item.days_until_expiration
-                exp_str = str(item.expiration_date)
-                if days is not None:
-                    exp_str += f'  ({days} dni)'
-                ui.label(exp_str)
-
-            if item.removal_date:
-                ui.label('Data zdjęcia:').classes('font-bold')
-                ui.label(str(item.removal_date))
-
-            if item.auction_link:
-                ui.label('Link do aukcji:').classes('font-bold')
-                ui.link(item.auction_link, item.auction_link, new_tab=True)
-
-        ui.separator()
-        ui.label('Opis').classes('text-subtitle1 font-bold')
-        ui.label(item.description).classes('whitespace-pre-wrap')
-
-        # Actions
-        ui.separator()
-        with ui.row().classes('gap-2'):
-            ui.button('Edytuj', icon='edit',
-                      on_click=lambda: ui.navigate.to(f'/items/{item_id}/edit'))
-            ui.button('Eksportuj zdjęcia', icon='download',
-                      on_click=lambda: ui.run_javascript(f'window.location.href="/api/export/{item_id}"')) \
-                .props('outline')
-
-            def confirm_delete():
-                with ui.dialog() as dlg, ui.card():
-                    ui.label('Czy na pewno chcesz usunąć ten przedmiot?').classes('text-lg')
-                    with ui.row().classes('w-full justify-end gap-2 q-mt-md'):
-                        ui.button('Anuluj', on_click=dlg.close).props('flat')
-                        ui.button('Usuń', on_click=lambda: do_delete(dlg), icon='delete') \
-                            .props('color=red')
-                dlg.open()
-
-            def do_delete(dlg):
-                with get_db() as db:
-                    it = db.query(Item).options(selectinload(Item.images)).get(item_id)
-                    if it:
-                        for img in it.images:
-                            delete_image_file(img.filename)
-                        db.delete(it)
-                        db.commit()
-                dlg.close()
-                ui.notify('Przedmiot usunięty', type='positive')
-                ui.navigate.to('/')
-
-            ui.button('Usuń', icon='delete', on_click=confirm_delete).props('color=red outline')
-
-
 # --- Add item ---
 
 @ui.page('/items/add')
@@ -505,3 +406,102 @@ def item_edit(item_id: int):
         with ui.row().classes('w-full justify-end gap-2 q-mt-lg'):
             ui.button('Anuluj', on_click=lambda: ui.navigate.to(f'/items/{item_id}')).props('flat')
             ui.button('Zapisz', icon='save', on_click=save).props('color=primary')
+
+
+# --- Item detail (must be after /items/add and /items/{item_id}/edit) ---
+
+@ui.page('/items/{item_id}')
+def item_detail(item_id: int):
+    create_header()
+
+    with get_db() as db:
+        item = db.query(Item).options(
+            selectinload(Item.images), selectinload(Item.category_rel),
+        ).get(item_id)
+
+    if not item:
+        ui.label('Przedmiot nie znaleziony').classes('text-xl text-red q-pa-lg')
+        return
+
+    with ui.column().classes('w-full max-w-5xl mx-auto px-4 py-6 gap-4'):
+        # Title row
+        with ui.row().classes('w-full items-center'):
+            ui.label(item.title).classes('text-h4 font-bold')
+            ui.space()
+            cs = item.calculated_status
+            ui.badge(STATUS_LABELS.get(cs, cs), color=STATUS_COLORS.get(cs, 'grey')).props('size=lg')
+
+        # Images
+        if item.images:
+            with ui.row().classes('gap-3 flex-wrap'):
+                for img in item.images:
+                    ui.image(f'/uploads/{img.filename}') \
+                        .classes('rounded shadow').style('height: 240px; object-fit: cover')
+
+        ui.separator()
+
+        # Details grid
+        with ui.grid(columns=2).classes('gap-x-8 gap-y-2'):
+            ui.label('Cena:').classes('font-bold')
+            ui.label(f'{float(item.price):.2f} zł')
+
+            ui.label('Kategoria:').classes('font-bold')
+            ui.label(item.category_rel.display_name if item.category_rel else '-')
+
+            ui.label('Dodano:').classes('font-bold')
+            ui.label(item.date_added.strftime('%Y-%m-%d') if item.date_added else '-')
+
+            if item.activation_date:
+                ui.label('Data aktywacji:').classes('font-bold')
+                ui.label(str(item.activation_date))
+
+                ui.label('Wygasa:').classes('font-bold')
+                days = item.days_until_expiration
+                exp_str = str(item.expiration_date)
+                if days is not None:
+                    exp_str += f'  ({days} dni)'
+                ui.label(exp_str)
+
+            if item.removal_date:
+                ui.label('Data zdjęcia:').classes('font-bold')
+                ui.label(str(item.removal_date))
+
+            if item.auction_link:
+                ui.label('Link do aukcji:').classes('font-bold')
+                ui.link(item.auction_link, item.auction_link, new_tab=True)
+
+        ui.separator()
+        ui.label('Opis').classes('text-subtitle1 font-bold')
+        ui.label(item.description).classes('whitespace-pre-wrap')
+
+        # Actions
+        ui.separator()
+        with ui.row().classes('gap-2'):
+            ui.button('Edytuj', icon='edit',
+                      on_click=lambda: ui.navigate.to(f'/items/{item_id}/edit'))
+            ui.button('Eksportuj zdjęcia', icon='download',
+                      on_click=lambda: ui.run_javascript(f'window.location.href="/api/export/{item_id}"')) \
+                .props('outline')
+
+            def confirm_delete():
+                with ui.dialog() as dlg, ui.card():
+                    ui.label('Czy na pewno chcesz usunąć ten przedmiot?').classes('text-lg')
+                    with ui.row().classes('w-full justify-end gap-2 q-mt-md'):
+                        ui.button('Anuluj', on_click=dlg.close).props('flat')
+                        ui.button('Usuń', on_click=lambda: do_delete(dlg), icon='delete') \
+                            .props('color=red')
+                dlg.open()
+
+            def do_delete(dlg):
+                with get_db() as db:
+                    it = db.query(Item).options(selectinload(Item.images)).get(item_id)
+                    if it:
+                        for img in it.images:
+                            delete_image_file(img.filename)
+                        db.delete(it)
+                        db.commit()
+                dlg.close()
+                ui.notify('Przedmiot usunięty', type='positive')
+                ui.navigate.to('/')
+
+            ui.button('Usuń', icon='delete', on_click=confirm_delete).props('color=red outline')
