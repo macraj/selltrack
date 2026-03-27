@@ -1,4 +1,5 @@
 from nicegui import ui
+from version import get_version
 
 STATUS_LABELS = {
     'w_magazynie': 'W magazynie',
@@ -34,6 +35,7 @@ def create_header():
                 .props('flat color=white')
             ui.button('Kategorie', on_click=lambda: ui.navigate.to('/categories'), icon='category') \
                 .props('flat color=white')
+            ui.label(f'v{get_version()}').classes('text-xs text-blue-200 opacity-70')
 
 
 def create_date_input(label: str, value: str = '') -> ui.input:
