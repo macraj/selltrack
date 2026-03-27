@@ -448,9 +448,10 @@ def item_detail(item_id: int):
                         .on('click', lambda _, s=src: open_lightbox(s))
 
             def open_lightbox(src):
-                with ui.dialog() as dlg, ui.card().classes('p-0').style('max-width: 90vw; max-height: 90vh'):
-                    ui.image(src).style('max-width: 90vw; max-height: 85vh; object-fit: contain')
-                    dlg.on('close', dlg.delete)
+                with ui.dialog().props('maximized') as dlg:
+                    with ui.element('div').classes('w-full h-full flex items-center justify-center') \
+                            .on('click', dlg.close):
+                        ui.image(src).style('max-width: 95vw; max-height: 95vh; object-fit: contain')
                 dlg.open()
 
         ui.separator()
