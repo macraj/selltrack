@@ -112,7 +112,7 @@ def item_list():
                             .on('click', lambda _, i=item: ui.navigate.to(f'/items/{i.id}')):
                         if item.images:
                             ui.image(f'/uploads/{item.images[0].filename}') \
-                                .classes('w-full').style('height: 200px; object-fit: cover')
+                                .style('width: 100%; height: 200px; object-fit: cover')
                         else:
                             with ui.element('div').classes(
                                 'w-full bg-grey-2 flex items-center justify-center'
@@ -442,7 +442,7 @@ def item_detail(item_id: int):
             with ui.row().classes('gap-3 flex-wrap'):
                 for img in item.images:
                     ui.image(f'/uploads/{img.filename}') \
-                        .classes('rounded shadow').style('height: 240px; object-fit: cover')
+                        .classes('rounded shadow').style('height: 240px; width: 320px; object-fit: cover')
 
         ui.separator()
 
