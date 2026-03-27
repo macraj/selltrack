@@ -1,0 +1,17 @@
+[Unit]
+Description=SellTrack Inventory Management
+After=network.target
+
+[Service]
+Type=simple
+User=selltrack
+Group=selltrack
+WorkingDirectory=/opt/selltrack
+ExecStart=/opt/selltrack/venv/bin/python main.py
+Restart=always
+RestartSec=5
+Environment=SELLTRACK_HOST=0.0.0.0
+Environment=SELLTRACK_PORT=5000
+
+[Install]
+WantedBy=multi-user.target
