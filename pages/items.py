@@ -202,10 +202,13 @@ def item_add():
                             .style('height: 100px; width: 100px; object-fit: cover')
 
         def handle_upload(e: events.UploadEventArguments):
-            content = e.content.read()
-            fname = process_and_save_image(content, e.name)
-            uploaded_filenames.append(fname)
-            image_previews.refresh()
+            try:
+                content = e.content.read()
+                fname = process_and_save_image(content, e.name)
+                uploaded_filenames.append(fname)
+                image_previews.refresh()
+            except Exception as ex:
+                ui.notify(f'Błąd uploadu: {ex}', type='negative')
 
         ui.upload(on_upload=handle_upload, multiple=True, auto_upload=True,
                   label='Przeciągnij zdjęcia lub kliknij') \
@@ -348,10 +351,13 @@ def item_edit(item_id: int):
                             .style('height: 100px; width: 100px; object-fit: cover')
 
         def handle_upload(e: events.UploadEventArguments):
-            content = e.content.read()
-            fname = process_and_save_image(content, e.name)
-            new_filenames.append(fname)
-            new_previews.refresh()
+            try:
+                content = e.content.read()
+                fname = process_and_save_image(content, e.name)
+                new_filenames.append(fname)
+                new_previews.refresh()
+            except Exception as ex:
+                ui.notify(f'Błąd uploadu: {ex}', type='negative')
 
         ui.upload(on_upload=handle_upload, multiple=True, auto_upload=True,
                   label='Przeciągnij lub kliknij') \

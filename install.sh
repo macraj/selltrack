@@ -13,7 +13,8 @@ fi
 
 echo "==> Instalacja zaleznosci systemowych..."
 apt-get update -qq
-apt-get install -y -qq python3 python3-venv python3-pip git
+apt-get install -y -qq python3 python3-venv python3-pip git \
+    libjpeg-dev zlib1g-dev libwebp-dev
 
 # --- App user ---
 if ! id "$APP_USER" &>/dev/null; then
