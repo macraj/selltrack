@@ -439,19 +439,54 @@ def item_detail(item_id: int):
 
         # Images
         if item.images:
+            all_srcs = [f'/uploads/{img.filename}' for img in item.images]
+
             with ui.row().classes('gap-3 flex-wrap'):
-                for img in item.images:
-                    src = f'/uploads/{img.filename}'
+                for idx, src in enumerate(all_srcs):
                     ui.image(src) \
                         .classes('rounded shadow cursor-pointer') \
                         .style('height: 240px; width: 320px; object-fit: cover') \
-                        .on('click', lambda _, s=src: open_lightbox(s))
+                        .on('click', lambda _, i=idx: open_lightbox(i))
 
-            def open_lightbox(src):
+            def open_lightbox(start_idx):
+                state = {'idx': start_idx}
+
                 with ui.dialog().props('maximized') as dlg:
-                    with ui.element('div').classes('w-full h-full flex items-center justify-center') \
-                            .on('click', dlg.close):
-                        ui.image(src).style('max-width: 95vw; max-height: 95vh; object-fit: contain')
+                    with ui.element('div').classes('w-full h-full flex items-center justify-center relative'):
+                        # Background click to close
+                        ui.element('div').classes('absolute inset-0').on('click', dlg.close)
+
+                        # Close button
+                        ui.button(icon='close', on_click=dlg.close) \
+                            .props('flat round color=white size=lg') \
+                            .classes('absolute top-4 right-4 z-10')
+
+                        # Left arrow
+                        if len(all_srcs) > 1:
+                            ui.button(icon='chevron_left', on_click=lambda: navigate(-1)) \
+                                .props('flat round color=white size=xl') \
+                                .classes('absolute left-4 z-10')
+
+                        # Image
+                        lb_image = ui.image(all_srcs[start_idx]) \
+                            .style('max-width: 85vw; max-height: 90vh; object-fit: contain; position: relative; z-index: 5')
+
+                        # Right arrow
+                        if len(all_srcs) > 1:
+                            ui.button(icon='chevron_right', on_click=lambda: navigate(1)) \
+                                .props('flat round color=white size=xl') \
+                                .classes('absolute right-4 z-10')
+
+                        # Counter
+                        if len(all_srcs) > 1:
+                            counter = ui.label(f'{start_idx + 1} / {len(all_srcs)}') \
+                                .classes('absolute bottom-4 text-white text-lg z-10')
+
+                    def navigate(delta):
+                        state['idx'] = (state['idx'] + delta) % len(all_srcs)
+                        lb_image.set_source(all_srcs[state['idx']])
+                        counter.set_text(f'{state["idx"] + 1} / {len(all_srcs)}')
+
                 dlg.open()
 
         ui.separator()
