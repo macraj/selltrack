@@ -201,10 +201,10 @@ def item_add():
                         ui.image(f'/uploads/{fname}').classes('rounded') \
                             .style('height: 100px; width: 100px; object-fit: cover')
 
-        def handle_upload(e: events.UploadEventArguments):
+        async def handle_upload(e: events.UploadEventArguments):
             try:
-                content = e.content.read()
-                fname = process_and_save_image(content, e.name)
+                content = await e.file.read()
+                fname = process_and_save_image(content, e.file.name)
                 uploaded_filenames.append(fname)
                 image_previews.refresh()
             except Exception as ex:
@@ -350,10 +350,10 @@ def item_edit(item_id: int):
                         ui.image(f'/uploads/{fname}').classes('rounded') \
                             .style('height: 100px; width: 100px; object-fit: cover')
 
-        def handle_upload(e: events.UploadEventArguments):
+        async def handle_upload(e: events.UploadEventArguments):
             try:
-                content = e.content.read()
-                fname = process_and_save_image(content, e.name)
+                content = await e.file.read()
+                fname = process_and_save_image(content, e.file.name)
                 new_filenames.append(fname)
                 new_previews.refresh()
             except Exception as ex:
