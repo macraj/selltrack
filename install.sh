@@ -7,7 +7,7 @@ REPO_URL="https://github.com/macraj/selltrack.git"
 
 # --- Root check ---
 if [[ $EUID -ne 0 ]]; then
-    echo "Uruchom jako root: sudo bash install.sh"
+    echo "Uruchom jako root: su -c 'bash install.sh'"
     exit 1
 fi
 
@@ -25,7 +25,7 @@ fi
 if [[ -d "$APP_DIR/.git" ]]; then
     echo "==> Aktualizacja repozytorium..."
     cd "$APP_DIR"
-    sudo -u "$APP_USER" git pull --ff-only
+    runuser -u "$APP_USER" -- git pull --ff-only
 else
     echo "==> Klonowanie repozytorium..."
     mkdir -p "$APP_DIR"
@@ -38,14 +38,14 @@ cd "$APP_DIR"
 # --- Virtualenv ---
 echo "==> Konfiguracja virtualenv..."
 if [[ ! -d "$APP_DIR/venv" ]]; then
-    sudo -u "$APP_USER" python3 -m venv "$APP_DIR/venv"
+    runuser -u "$APP_USER" -- python3 -m venv "$APP_DIR/venv"
 fi
-sudo -u "$APP_USER" "$APP_DIR/venv/bin/pip" install --quiet --upgrade pip
-sudo -u "$APP_USER" "$APP_DIR/venv/bin/pip" install --quiet -r requirements.txt
+runuser -u "$APP_USER" -- "$APP_DIR/venv/bin/pip" install --quiet --upgrade pip
+runuser -u "$APP_USER" -- "$APP_DIR/venv/bin/pip" install --quiet -r requirements.txt
 
 # --- Directories ---
 echo "==> Tworzenie katalogow danych..."
-sudo -u "$APP_USER" mkdir -p "$APP_DIR/data" "$APP_DIR/uploads" "$APP_DIR/exports"
+runuser -u "$APP_USER" -- mkdir -p "$APP_DIR/data" "$APP_DIR/uploads" "$APP_DIR/exports"
 
 # --- Systemd service ---
 echo "==> Instalacja serwisu systemd..."
